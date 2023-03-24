@@ -1,0 +1,498 @@
+#reset everything
+switchtolayout;
+
+clc;
+clear;
+deleteall;
+
+t_glass=1000e-9;
+ax=200e-9;
+ay=200e-9;
+
+
+##add holes
+addstructuregroup;
+set("name","holes");
+
+#should be repeated to avoid misalignment
+set("use relative coordinates",0);
+set('x',0);
+set('y',0);
+set('z',0);
+
+groupscope("::model::holes");
+
+material='etch';
+
+z_span=20e-9;
+ny=3;
+nx=3;
+
+radius=45e-9;
+
+i=0;
+j=0;
+
+n_rows = ny-1;
+n_cols = nx-1;
+even_flag = 0;
+
+for(i=-n_rows/2:n_rows/2) {
+  for(j=-n_cols/2:n_cols/2) {
+    addcircle;    
+    set("radius",radius);
+    set("x",(j)*ax);
+    set("y",(i)*ay);   
+    set("z span",z_span); 
+    set("material",material);
+    if(get("material")=="<Object defined dielectric>")
+      { set("index",index); } 
+  }
+}
+
+#exit group
+groupscope("::model");
+
+##add au film 
+addrect;
+set("use relative coordinates",0);
+set("name","au_film");
+set("x",0);
+set("x span",600e-9);
+set("y",0);
+set("y span",600e-9);
+set("z",0);
+set("z span",20e-9);
+set("material","Au (Gold) - Johnson and Christy");
+
+#mesh order 2 ->subordinate to holes
+set('override mesh order from material database',1);
+set('mesh order',2);
+set('override mesh order from material database',0);
+
+
+##add glass 
+addrect;
+set("use relative coordinates",0);
+set("name","glass");
+set("x",0);
+set("x span",600e-9);
+set("y",0);
+set("y span",600e-9);
+set("z",-((t_glass)/2+10e-9));
+set("z span",t_glass);
+set('material','SiO2 (Glass) - Palik');
+
+#mesh order 2 ->subordinate to au film
+set('override mesh order from material database',1);
+set('mesh order',3);
+set('override mesh order from material database',0);
+
+
+
+##add FDTD#tests were done on types of BCs
+addfdtd;
+set("use relative coordinates",0);
+set('x',0);
+set('y',0);
+set('z',0);
+set('x span',ax);
+set('y span',ay);
+set('z span',1000e-9);
+set('mesh accuracy',3);
+set('x min bc',"Periodic");
+#set('x max bc',"Anti-Symmetric");
+set('y min bc',"Periodic");
+#set('y max bc',"Symmetric");
+
+##add mesh override to be 4.5 nm for coarse, 1.5 nm for fine image
+addmesh;
+set('set maximum mesh step',1);
+set('override x mesh',1);
+set('dx',4.5e-9);
+set('override y mesh',1);
+set('dy',4.5e-9);
+set('override z mesh',1);
+set('dz',4.5e-9);
+
+set('based on a structure',1);
+set('structure',"circle");
+set('buffer',25e-9);
+
+##add source right next to boundary of FDTD box
+addplane;
+set("use relative coordinates",0);
+set('direction',"Backward");
+set('polarization angle',0);
+set('x',0);
+set('x span',ax);
+set('y',0);
+set('y span',ay);
+set('z',getnamed("FDTD","z span")/2-50e-9);
+set('wavelength start',450e-9);
+set('wavelength stop',750e-9);
+
+##add transmission measurement right next to boundary of FDTD box
+addpower;
+set("use relative coordinates",0);
+set('name',"T");
+set('x',0);
+set('x span',ax);
+set('y',0);
+set('y span',ay);
+set('z',-(getnamed("FDTD","z span")/2)+50e-9);
+
+#add hole field measurement
+addpower;
+set("use relative coordinates",0);
+set('name',"E-field");
+set('x',0);
+set('x span',ax);
+set('y',0);
+set('y span',ay);
+set('z',0);
+
+
+##run
+run;
+
+##plot transmission
+m="T";    # monitor name
+f=getdata(m,"f");
+T=-transmission(m);
+holdon;
+plot(c/f*1e9,T,"wavelength(nm)","transmission");  
+
+
+########################################
+#reset everything
+switchtolayout;
+
+clc;
+clear;
+deleteall;
+
+t_glass=1000e-9;
+ax=225e-9;
+ay=225e-9;
+
+
+##add holes
+addstructuregroup;
+set("name","holes");
+
+#should be repeated to avoid misalignment
+set("use relative coordinates",0);
+set('x',0);
+set('y',0);
+set('z',0);
+
+groupscope("::model::holes");
+
+material='etch';
+
+z_span=20e-9;
+ny=3;
+nx=3;
+
+radius=45e-9;
+
+i=0;
+j=0;
+
+n_rows = ny-1;
+n_cols = nx-1;
+even_flag = 0;
+
+for(i=-n_rows/2:n_rows/2) {
+  for(j=-n_cols/2:n_cols/2) {
+    addcircle;    
+    set("radius",radius);
+    set("x",(j)*ax);
+    set("y",(i)*ay);   
+    set("z span",z_span); 
+    set("material",material);
+    if(get("material")=="<Object defined dielectric>")
+      { set("index",index); } 
+  }
+}
+
+#exit group
+groupscope("::model");
+
+##add au film 
+addrect;
+set("use relative coordinates",0);
+set("name","au_film");
+set("x",0);
+set("x span",600e-9);
+set("y",0);
+set("y span",600e-9);
+set("z",0);
+set("z span",20e-9);
+set("material","Au (Gold) - Johnson and Christy");
+
+#mesh order 2 ->subordinate to holes
+set('override mesh order from material database',1);
+set('mesh order',2);
+set('override mesh order from material database',0);
+
+
+##add glass 
+addrect;
+set("use relative coordinates",0);
+set("name","glass");
+set("x",0);
+set("x span",600e-9);
+set("y",0);
+set("y span",600e-9);
+set("z",-((t_glass)/2+10e-9));
+set("z span",t_glass);
+set('material','SiO2 (Glass) - Palik');
+
+#mesh order 2 ->subordinate to au film
+set('override mesh order from material database',1);
+set('mesh order',3);
+set('override mesh order from material database',0);
+
+
+
+##add FDTD#tests were done on types of BCs
+addfdtd;
+set("use relative coordinates",0);
+set('x',0);
+set('y',0);
+set('z',0);
+set('x span',ax);
+set('y span',ay);
+set('z span',1000e-9);
+set('mesh accuracy',3);
+set('x min bc',"Periodic");
+#set('x max bc',"Anti-Symmetric");
+set('y min bc',"Periodic");
+#set('y max bc',"Symmetric");
+
+##add mesh override to be 4.5 nm for coarse, 1.5 nm for fine image
+addmesh;
+set('set maximum mesh step',1);
+set('override x mesh',1);
+set('dx',4.5e-9);
+set('override y mesh',1);
+set('dy',4.5e-9);
+set('override z mesh',1);
+set('dz',4.5e-9);
+
+set('based on a structure',1);
+set('structure',"circle");
+set('buffer',25e-9);
+
+##add source right next to boundary of FDTD box
+addplane;
+set("use relative coordinates",0);
+set('direction',"Backward");
+set('polarization angle',0);
+set('x',0);
+set('x span',ax);
+set('y',0);
+set('y span',ay);
+set('z',getnamed("FDTD","z span")/2-50e-9);
+set('wavelength start',450e-9);
+set('wavelength stop',750e-9);
+
+##add transmission measurement right next to boundary of FDTD box
+addpower;
+set("use relative coordinates",0);
+set('name',"T");
+set('x',0);
+set('x span',ax);
+set('y',0);
+set('y span',ay);
+set('z',-(getnamed("FDTD","z span")/2)+50e-9);
+
+#add hole field measurement
+addpower;
+set("use relative coordinates",0);
+set('name',"E-field");
+set('x',0);
+set('x span',ax);
+set('y',0);
+set('y span',ay);
+set('z',0);
+
+
+##run
+run;
+
+##plot transmission
+m="T";    # monitor name
+f=getdata(m,"f");
+T=-transmission(m);
+holdon;
+plot(c/f*1e9,T,"wavelength(nm)","transmission");  
+
+####################################################
+########################################
+#reset everything
+switchtolayout;
+
+clc;
+clear;
+deleteall;
+
+t_glass=1000e-9;
+ax=250e-9;
+ay=250e-9;
+
+
+##add holes
+addstructuregroup;
+set("name","holes");
+
+#should be repeated to avoid misalignment
+set("use relative coordinates",0);
+set('x',0);
+set('y',0);
+set('z',0);
+
+groupscope("::model::holes");
+
+material='etch';
+
+z_span=20e-9;
+ny=3;
+nx=3;
+
+radius=45e-9;
+
+i=0;
+j=0;
+
+n_rows = ny-1;
+n_cols = nx-1;
+even_flag = 0;
+
+for(i=-n_rows/2:n_rows/2) {
+  for(j=-n_cols/2:n_cols/2) {
+    addcircle;    
+    set("radius",radius);
+    set("x",(j)*ax);
+    set("y",(i)*ay);   
+    set("z span",z_span); 
+    set("material",material);
+    if(get("material")=="<Object defined dielectric>")
+      { set("index",index); } 
+  }
+}
+
+#exit group
+groupscope("::model");
+
+##add au film 
+addrect;
+set("use relative coordinates",0);
+set("name","au_film");
+set("x",0);
+set("x span",600e-9);
+set("y",0);
+set("y span",600e-9);
+set("z",0);
+set("z span",20e-9);
+set("material","Au (Gold) - Johnson and Christy");
+
+#mesh order 2 ->subordinate to holes
+set('override mesh order from material database',1);
+set('mesh order',2);
+set('override mesh order from material database',0);
+
+
+##add glass 
+addrect;
+set("use relative coordinates",0);
+set("name","glass");
+set("x",0);
+set("x span",600e-9);
+set("y",0);
+set("y span",600e-9);
+set("z",-((t_glass)/2+10e-9));
+set("z span",t_glass);
+set('material','SiO2 (Glass) - Palik');
+
+#mesh order 2 ->subordinate to au film
+set('override mesh order from material database',1);
+set('mesh order',3);
+set('override mesh order from material database',0);
+
+
+
+##add FDTD#tests were done on types of BCs
+addfdtd;
+set("use relative coordinates",0);
+set('x',0);
+set('y',0);
+set('z',0);
+set('x span',ax);
+set('y span',ay);
+set('z span',1000e-9);
+set('mesh accuracy',3);
+set('x min bc',"Periodic");
+#set('x max bc',"Anti-Symmetric");
+set('y min bc',"Periodic");
+#set('y max bc',"Symmetric");
+
+##add mesh override to be 4.5 nm for coarse, 1.5 nm for fine image
+addmesh;
+set('set maximum mesh step',1);
+set('override x mesh',1);
+set('dx',4.5e-9);
+set('override y mesh',1);
+set('dy',4.5e-9);
+set('override z mesh',1);
+set('dz',4.5e-9);
+
+set('based on a structure',1);
+set('structure',"circle");
+set('buffer',25e-9);
+
+##add source right next to boundary of FDTD box
+addplane;
+set("use relative coordinates",0);
+set('direction',"Backward");
+set('polarization angle',0);
+set('x',0);
+set('x span',ax);
+set('y',0);
+set('y span',ay);
+set('z',getnamed("FDTD","z span")/2-50e-9);
+set('wavelength start',450e-9);
+set('wavelength stop',750e-9);
+
+##add transmission measurement right next to boundary of FDTD box
+addpower;
+set("use relative coordinates",0);
+set('name',"T");
+set('x',0);
+set('x span',ax);
+set('y',0);
+set('y span',ay);
+set('z',-(getnamed("FDTD","z span")/2)+50e-9);
+
+#add hole field measurement
+addpower;
+set("use relative coordinates",0);
+set('name',"E-field");
+set('x',0);
+set('x span',ax);
+set('y',0);
+set('y span',ay);
+set('z',0);
+
+
+##run
+run;
+
+##plot transmission
+m="T";    # monitor name
+f=getdata(m,"f");
+T=-transmission(m);
+holdon;
+plot(c/f*1e9,T,"wavelength(nm)","transmission");  

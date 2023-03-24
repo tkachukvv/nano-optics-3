@@ -1,0 +1,63 @@
+#use to delete pre-existing script
+deletesweep("Override");
+# add a new sweep and set basic properties
+addsweep;
+setsweep("sweep", "name", "Override");
+setsweep("Override", "type", "Ranges");
+setsweep("Override","Number of points",7);
+
+##define dx
+# define the parameter thickness
+para = struct;
+para.Name = "dx";
+para.Parameter = "::model::mesh::dx";
+para.Type = "Length";
+
+para.Start =1.5e-9;
+para.Stop = 7.5e-9;
+
+# add the parameter thickness to the sweep
+addsweepparameter("Override", para);
+
+##define dy
+# define the parameter thickness
+para = struct;
+para.Name = "dy";
+para.Parameter = "::model::mesh::dy";
+para.Type = "Length";
+
+para.Start =1.5e-9;
+para.Stop = 7.5e-9;
+
+# add the parameter thickness to the sweep
+addsweepparameter("Override", para);
+
+
+##define dz
+# define the parameter thickness
+para = struct;
+para.Name = "dz";
+para.Parameter = "::model::mesh::dz";
+para.Type = "Length";
+
+para.Start =1.5e-9;
+para.Stop = 7.5e-9;
+
+# add the parameter thickness to the sweep
+addsweepparameter("Override", para);
+
+
+#Define result: T
+result_T = struct;
+result_T.Name = "T";
+result_T.Result = "::model::T::T";
+
+# add the results T to the sweep
+addsweepresult("Override", result_T);
+
+# run the sweep
+runsweep("Override");
+
+# save and view the results
+T = getsweepresult("Override", "T");
+visualize(T);

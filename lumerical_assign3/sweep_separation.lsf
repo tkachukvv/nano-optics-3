@@ -1,0 +1,34 @@
+##use to delete pre-existing script
+deletesweep("Separation");
+## add a new sweep and set basic properties
+addsweep;
+setsweep("sweep", "name", "Separation");
+setsweep("Separation", "type", "Ranges");
+setsweep("Separation","Number of points",7);
+
+## define the parameter thickness
+para = struct;
+para.Name = "Separation";
+para.Parameter = "::model::FDTD::z span";
+para.Type = "Length";
+
+para.Start =900e-9;
+para.Stop =1800e-9;
+
+## add the parameter thickness to the sweep
+addsweepparameter("Separation", para);
+
+##Define result: T
+result_T = struct;
+result_T.Name = "T";
+result_T.Result = "::model::T::T";
+
+## add the results T to the sweep
+addsweepresult("Separation", result_T);
+
+## run the sweep
+runsweep("Separation");
+
+## save and view the results
+T = getsweepresult("Separation", "T");
+visualize(T);
